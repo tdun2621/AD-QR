@@ -1,0 +1,675 @@
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+Import-Module ActiveDirectory
+
+$targetOU = "OU=CCOMTL Users,DC=ccomtl,DC=rtss,DC=qc,DC=ca"
+$verbBank = @("Ambling", "Animating", "Applauding", "Basking", "Beaming", "Blissing", "Blooming", "Bouncing", "Bounding", "Bravoing", "Bubbling", "Buoying", "Bursting", "Capering", "Celebrating", "Chanting", "Charming", "Cheering", "Cheeping", "Chirping", "Chuckling", "Clapping", "Clawing", "Climbing", "Coloring", "Composing", "Congratulating", "Contenting", "Contributing", "Cooing", "Creating", "Crowing", "Cruising", "Cuddling", "Dabbling", "Dallying", "Dancing", "Darting", "Delighting", "Digging", "Doodling", "Dozing", "Dreaming", "Drinking", "Easing", "Eating", "Echoing", "Elating", "Embracing", "Emerging", "Enjoying", "Enlivening", "Enriching", "Entertaining", "Excelling", "Exhilarating", "Exploring", "Fawning", "Feasting", "Fetching", "Flapping", "Flashing", "Floating", "Flowering", "Flourishing", "Flying", "Foraging", "Frolicking", "Gallivanting", "Galloping", "Gathering", "Gazing", "Gesticulating", "Getting", "Giggling", "Glancing", "Glistening", "Glittering", "Glowing", "Going", "Greeting", "Grinning", "Grooming", "Growing", "Hatching", "Healing", "Heartening", "Hibernating", "Hiking", "Hinting", "Hopping", "Hoping", "Hovering", "Howling", "Hugging", "Humming", "Hunting", "Hurrying", "Hustling", "Idealizing", "Illuminating", "Imagining", "Improvising", "Inspiring", "Interacting", "Inventing", "Inviting", "Jabbering", "Jiving", "Jogging", "Joining", "Joking", "Journeying", "Juggling", "Jumping", "Kissing", "Lapping", "Laughing", "Leaping", "Licking", "Lighting", "Listening", "Living", "Loafing", "Looking", "Loving", "Lumbering", "Making", "Marching", "Marveling", "Merrymaking", "Migrating", "Milking", "Mimicking", "Mingling", "Moving", "Munching", "Murmuring", "Nesting", "Nodding", "Noticing", "Nudging", "Nurturing", "Nuzzling", "Observing", "Offering", "Outing", "Padding", "Painting", "Palpating", "Pampering", "Panting", "Parading", "Partying", "Patrolling", "Patting", "Pausing", "Paying", "Pecking", "Peeking", "Performing", "Picnicking", "Playing", "Plopping", "Pouncing", "Prancing", "Preening", "Presenting", "Promenading", "Prowling", "Publishing", "Puffing", "Pulling", "Pumping", "Purring", "Quacking", "Quivering", "Racing", "Radiating", "Rambling", "Reaching", "Reacting", "Reading", "Rebounding", "Recognizing", "Recreating", "Rejoicing", "Relaxing", "Remembering", "Rendering", "Renewing", "Repling", "Rescuing", "Responding", "Resting", "Reveling", "Riding", "Rising", "Roaming", "Romping", "Running", "Rushing", "Rustling", "Sailing", "Saluting", "Savoring", "Scaling", "Scampering", "Scanning", "Scattering", "Scoffing", "Scooting", "Scouring", "Scratching", "Screaming", "Scrolling", "Searching", "Seizing", "Sensing", "Sharing", "Shining", "Shopping", "Showing", "Singing", "Skiing", "Skipping", "Sliding", "Smiling", "Smirking", "Snapping", "Sneezing", "Sniffing", "Snorkeling", "Snorting", "Snowballing", "Snowing", "Snuggling", "Soaring", "Socializing", "Softening", "Spanking", "Sparking", "Speaking", "Speeding", "Spinning", "Splashing", "Sporting", "Sprawling", "Spraying", "Spreading", "Springing", "Sprinkling", "Sprouting", "Squeaking", "Squealing", "Squirming", "Stargazing", "Starting", "Stepping", "Stirring", "Strolling", "Strutting", "Studying", "Stumbling", "Stunning", "Styling", "Subscribing", "Succeeding", "Sunning", "Surfing", "Surging", "Surprising", "Swapping", "Swarming", "Swatting", "Swaying", "Sweeping", "Swimming", "Swinging", "Swirling", "Swishing", "Taking", "Talking", "Tasting", "Teasing", "Thanking", "Thinking", "Thriving", "Tickling", "Tidying", "Tipping", "Toasting", "Toddling", "Toppling", "Touring", "Tracing", "Trading", "Traveling", "Treating", "Tripping", "Trotting", "Trumpeting", "Trusting", "Trying", "Tumbling", "Turning", "Tutoring", "Twinkling", "Twirling", "Typing", "Uniting", "Unlocking", "Unpacking", "Unwrapping", "Upgrading", "Uplifting", "Urging", "Using", "Vacationing", "Validating", "Valuing", "Vanishing", "Vaulting", "Venturing", "Verifying", "Viewing", "Visiting", "Volunteering", "Voyaging", "Waddling", "Wafting", "Wagging", "Wailing", "Waiting", "Waking", "Walking", "Waltzing", "Wandering", "Wanting", "Washing", "Watching", "Waving", "Waxing", "Weaving", "Wedding", "Weeping", "Weighing", "Welcoming", "Whimpering", "Whining", "Whispering", "Whistling", "Whooping", "Wiggling", "Winging", "Wishing", "Wondering", "Working", "Worshipping", "Wowing", "Wrapping", "Wrestling", "Writing", "Yawning", "Yelling", "Yelping", "Yielding", "Yodeling", "Zooming")
+
+$adjectiveBank = @("Adorable","Ancient","Antique","Aquatic","Aromatic","Artistic","Astounding","Athletic","Attractive","Awesome","Beautiful","Bizarre","Blushing","Bold","Brave","Bright","Brilliant","Bustling","Calm","Captivating","Careful","Charming","Cheerful","Classic","Clean","Clear","Clever","Colourful","Colossal","Comfortable","Confident","Cosmic","Cozy","Creative","Crisp","Curious","Curly","Daring","Dazzling","Delicate","Delicious","Delightful","Distinctive","Divine","Dramatic","Dynamic","Eager","Elegant","Enchanted","Energetic","Enormous","Enthusiastic","Eternal","Excellent","Excited","Exotic","Fabulous","Famous","Fancy","Fantastic","Fascinating","Festive","Flawless","Fluffy","Fragrant","Fresh","Friendly","Funny","Furry","Generous","Gentle","Gigantic","Glamorous","Gleaming","Glorious","Golden","Graceful","Grand","Grateful","Great","Happy","Harmonious","Healthy","Heavenly","Helpful","Hidden","Honest","Honorable","Humble","Humorous","Hungry","Icy","Ideal","Imaginary","Immense","Impressive","Incredible","Intelligent","Interesting","Intriguing","Jolly","Joyful","Jubilant","Juicy","Kind","Lively","Logical","Loyal","Lucky","Luminous","Luxurious","Magical","Magnificent","Majestic","Marvelous","Melodic","Mighty","Miraculous","Modern","Modest","Mysterious","Natural","Nifty","Noble","Nostalgic","Novel","Optimistic","Original","Outstanding","Peaceful","Perfect","Playful","Pleasant","Plucky","Polished","Popular","Powerful","Precious","Pretty","Pristine","Profound","Proud","Pure","Quick","Quiet","Radiant","Rapid","Rare","Remarkable","Resilient","Resourceful","Respectful","Rich","Royal","Rustic","Sacred","Safe","Sassy","Satisfied","Scenic","Scented","Seamless","Secret","Serene","Shimmering","Shiny","Significant","Silly","Simple","Sleek","Smart","Smiling","Smooth","Snuggly","Soft","Solid","Sophisticated","Soulful","Sparkling","Special","Spectacular","Spicy","Splendid","Spotless","Sprightly","Stellar","Stunning","Stylish","Sublime","Substantial","Subtle","Successful","Sunny","Super","Superb","Sweet","Swift","Talented","Tasteful","Tasty","Tender","Terrific","Thankful","Thoughtful","Thrilling","Tidy","Timeless","Treasured","Tremendous","Trustworthy","Ultimate","Unique","Valiant","Valuable","Vibrant","Victorious","Vigilant","Vintage","Vivacious","Vivid","Warm","Welcoming","Whimsical","Wild","Willing","Wise","Witty","Wonderful","Worldly","Worthy","Zealous","Zesty")
+
+$nounBank = @("Alligator","Alpaca","Snake","Fish","Antelope","Armadillo","Frog","Baboon","Badger","Fish","Beaver","Beetle","Bison","Bird","Cat","Buffalo","Butterfly","Camel","Bird","Deer","Fish","Cheetah","Chicken","Chipmunk","Snake","Bird","Cat","Coyote","Insect","Crocodile","Dolphin","Insect","Duck","Eagle","Elephant","Deer","Bird","Bird","Ferret","Bird","Insect","Flamingo","Fox","Frog","Deer","Lizard","Hamster","Giraffe","Fish","Goose","Gorilla","Grasshopper","Bear","Hamster","Hawk","Hedgehog","Bird","Hippo","Wasp","Horse","Bird","Hyena","Goat","Lizard","Deer","Dog","Jaguar","Jellyfish","Kangaroo","Bird","Bird","Koala","Bird","Monkey","Leopard","Lion","Lizard","Llama","Lobster","Cat","Bird","Bird","Seal","Monkey","Mantis","Fish","Meerkat","Mongoose","Monkey","Moose","Mosquito","Mouse","Rat","Whale","Squid","Salamander","Bird","Octopus","Opossum","Orangutan","Whale","Bird","Ostrich","Otter","Owl","Shellfish","Panda","Cat","Parrot","Peacock","Pelican","Penguin","Bird","Mammal","Porcupine","Bird","Snake","Bird","Rabbit","Raccoon","Snake","Bird","Deer","Rhinoceros","Bird","Salamander","Salmon","Scorpion","Fish","Seal","Shark","Sheep","Shrimp","Skunk","Sloth","Snail","Sparrow","Spider","Squid","Squirrel","Starfish","Fish","Bird","Swan","Spider","Insect","Tiger","Toad","Turtle","Toucan","Trout","Turkey","Turtle","Snake","Bird","Walrus","Pig","Wasp","Weasel","Whale","Cat","Wolf","Mammal","Mammal","Woodpecker","Bird","Mammal","Zebra","Fish","Lizard","Chimpanzee","Rodent","Insect","Fish","Parrot","Crane","Squid","Dog","Dove","Mammal","Fish","Rodent","Hawk","Hare","Bird","Bird","Mammal","Insect","Bird","Dog","Ladybug","Rodent","Cat","Fish","Bird","Duck","Mammal","Monkey","Mammal","Dog","Moth","Mammal","Cat","Bird","Antelope","Mammal","Peacock","Fish")
+
+$backColor = [System.Drawing.ColorTranslator]::FromHtml("#1e1e1e")
+$controlBackColor = [System.Drawing.ColorTranslator]::FromHtml("#2d2d30")
+$foreColor = [System.Drawing.Color]::White
+$textBoxForeColor = [System.Drawing.Color]::White
+$textBoxBackColor = [System.Drawing.ColorTranslator]::FromHtml("#121212")
+$readOnlyTextBoxBackColor = [System.Drawing.Color]::Black
+$dataGridDefaultRowBackColor = $controlBackColor
+$dataGridDefaultRowForeColor = $foreColor
+$dataGridHeaderBackColor = [System.Drawing.ColorTranslator]::FromHtml("#0a0a0a")
+$dataGridHeaderForeColor = $foreColor
+$dataGridAlternatingRowBackColor = [System.Drawing.ColorTranslator]::FromHtml("#252526")
+$dataGridFlaggedBackColor = [System.Drawing.ColorTranslator]::FromHtml("#a52a2a")
+$dataGridErrorBackColor = [System.Drawing.ColorTranslator]::FromHtml("#cd0a0a")
+$dataGridProcessedOKBackColor = [System.Drawing.ColorTranslator]::FromHtml("#228b22")
+$dataGridSetPreviouslyBackColor = [System.Drawing.ColorTranslator]::FromHtml("#1e90ff")
+$dataGridStatusForeColor = $foreColor
+$disabledButtonBackColor = [System.Drawing.ColorTranslator]::FromHtml("#3a3a3a")
+$disabledButtonForeColor = [System.Drawing.ColorTranslator]::FromHtml("#8a8a8a")
+
+function Generate-UniquePassword($usedPasswords, $currentAdjectiveBank, $currentNounBank, $currentVerbBank) {
+    $random = New-Object System.Random
+    do {
+        $verb = $currentVerbBank[$random.Next(0, $currentVerbBank.Count)]
+        $adjective = $currentAdjectiveBank[$random.Next(0, $currentAdjectiveBank.Count)]
+        $animal = $currentNounBank[$random.Next(0, $currentNounBank.Count)]
+        $password = "$verb-$adjective-$animal"
+    } while ($password.Length -lt 12)
+    return $password
+}
+
+$form = New-Object System.Windows.Forms.Form
+$form.Text = "AD Query + Reset"
+$form.Size = New-Object System.Drawing.Size(960, 630)
+$form.MinimumSize = New-Object System.Drawing.Size(860, 530)
+$form.StartPosition = "CenterScreen"
+$form.Font = New-Object System.Drawing.Font("Segoe UI", 10)
+$form.BackColor = $backColor
+
+$labelUsers = New-Object System.Windows.Forms.Label
+$labelUsers.Location = New-Object System.Drawing.Point(20, 15)
+$labelUsers.AutoSize = $true
+$labelUsers.Text = "Enter usernames (one per line):"
+$labelUsers.ForeColor = $foreColor
+$labelUsers.BackColor = $backColor
+$form.Controls.Add($labelUsers)
+
+$textBoxUsers = New-Object System.Windows.Forms.TextBox
+$textBoxUsers.Location = New-Object System.Drawing.Point(20, 40)
+$textBoxUsers.Size = New-Object System.Drawing.Size(920, 100)
+$textBoxUsers.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$textBoxUsers.Multiline = $true
+$textBoxUsers.ScrollBars = "Vertical"
+$textBoxUsers.BackColor = $textBoxBackColor
+$textBoxUsers.ForeColor = $textBoxForeColor
+$textBoxUsers.Add_KeyDown({
+    param($sender, $e)
+    if ($e.Control -and ($e.KeyCode -eq [System.Windows.Forms.Keys]::A)) { $sender.SelectAll() }
+})
+$form.Controls.Add($textBoxUsers)
+
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Location = New-Object System.Drawing.Point(20, 150)
+$progressBar.Size = New-Object System.Drawing.Size(920, 20)
+$progressBar.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$progressBar.BackColor = $controlBackColor
+$progressBar.ForeColor = [System.Drawing.Color]::LimeGreen
+$form.Controls.Add($progressBar)
+
+$dataGrid = New-Object System.Windows.Forms.DataGridView
+$dataGrid.Location = New-Object System.Drawing.Point(20, 180)
+$dataGrid.Size = New-Object System.Drawing.Size(920, 100)
+$dataGrid.Anchor = [System.Windows.Forms.AnchorStyles]::Top -bor [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right
+$dataGrid.ReadOnly = $true
+$dataGrid.AllowUserToAddRows = $false
+$dataGrid.ColumnCount = 8
+$dataGrid.Columns[0].Name = 'Username'
+$dataGrid.Columns[1].Name = 'Password'
+$dataGrid.Columns[2].Name = 'Email'
+$dataGrid.Columns[3].Name = 'Description'
+$dataGrid.Columns[4].Name = 'Office'
+$dataGrid.Columns[5].Name = 'Enabled'
+$dataGrid.Columns[6].Name = 'LogStat'
+$dataGrid.Columns[7].Name = 'LastLogon'
+
+$dataGrid.BackgroundColor = $controlBackColor
+$dataGrid.GridColor = [System.Drawing.ColorTranslator]::FromHtml("#D3D3D3")
+$dataGrid.DefaultCellStyle.BackColor = $dataGridDefaultRowBackColor
+$dataGrid.DefaultCellStyle.ForeColor = $dataGridDefaultRowForeColor
+$dataGrid.ColumnHeadersDefaultCellStyle.BackColor = $dataGridHeaderBackColor
+$dataGrid.ColumnHeadersDefaultCellStyle.ForeColor = $dataGridHeaderForeColor
+$dataGrid.EnableHeadersVisualStyles = $false
+$dataGrid.AlternatingRowsDefaultCellStyle.BackColor = $dataGridAlternatingRowBackColor
+$dataGrid.RowHeadersVisible = $true
+$dataGrid.RowHeadersDefaultCellStyle.BackColor = $dataGridHeaderBackColor
+$dataGrid.RowHeadersDefaultCellStyle.ForeColor = $dataGridHeaderForeColor
+$dataGrid.RowHeadersDefaultCellStyle.SelectionBackColor = [System.Drawing.ColorTranslator]::FromHtml("#5a5a5a")
+$dataGrid.RowHeadersDefaultCellStyle.SelectionForeColor = [System.Drawing.Color]::White
+$dataGrid.RowHeadersDefaultCellStyle.ApplyStyle($dataGrid.RowHeadersDefaultCellStyle)
+
+$dataGrid.Columns["Password"].DisplayIndex = 1
+$dataGrid.Columns["Email"].DisplayIndex = 2
+$dataGrid.Columns["Password"].FillWeight = 200
+$dataGrid.Columns["Email"].FillWeight = 150
+foreach ($col in $dataGrid.Columns) { if ($col.Name -ne "Password" -and $col.Name -ne "Email") { $col.FillWeight = 100 } }
+$dataGrid.AutoSizeColumnsMode = 'Fill'
+
+$dataGrid.Add_CellValueChanged({
+    param($sender, $e)
+    if ($dataGrid.Columns[$e.ColumnIndex].Name -eq 'Password') {
+    }
+})
+$dataGrid.Add_DataBindingComplete({ ResizePasswordColumn })
+$form.Controls.Add($dataGrid)
+
+$buttonProcess = New-Object System.Windows.Forms.Button
+$buttonProcess.Size = New-Object System.Drawing.Size(140, 30)
+$buttonProcess.Text = "Get AD Info"
+$buttonProcess.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$form.Controls.Add($buttonProcess)
+
+$buttonSave = New-Object System.Windows.Forms.Button
+$buttonSave.Size = New-Object System.Drawing.Size(120, 30)
+$buttonSave.Text = "Save to CSV"
+$buttonSave.Enabled = $false
+$buttonSave.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$form.Controls.Add($buttonSave)
+
+$buttonEnableReset = New-Object System.Windows.Forms.Button
+$buttonEnableReset.Size = New-Object System.Drawing.Size(170, 30)
+$buttonEnableReset.Text = "Enable + Reset Password"
+$buttonEnableReset.Enabled = $false
+$buttonEnableReset.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$form.Controls.Add($buttonEnableReset)
+
+$buttonGeneratePassword = New-Object System.Windows.Forms.Button
+$buttonGeneratePassword.Size = New-Object System.Drawing.Size(195, 30)
+$buttonGeneratePassword.Text = "Generate Random Password"
+$buttonGeneratePassword.AutoSize = $false
+$buttonGeneratePassword.FlatStyle = [System.Windows.Forms.FlatStyle]::Flat
+$form.Controls.Add($buttonGeneratePassword)
+
+$labelGenPasswordUser = New-Object System.Windows.Forms.Label
+$labelGenPasswordUser.Location = New-Object System.Drawing.Point(20, 15)
+$labelGenPasswordUser.AutoSize = $true
+$labelGenPasswordUser.Text = "Username:"
+$labelGenPasswordUser.ForeColor = $foreColor
+$labelGenPasswordUser.BackColor = $backColor
+$form.Controls.Add($labelGenPasswordUser)
+
+$textBoxGenPasswordUser = New-Object System.Windows.Forms.TextBox
+$textBoxGenPasswordUser.Size = New-Object System.Drawing.Size(120, 25)
+$textBoxGenPasswordUser.BackColor = $textBoxBackColor
+$textBoxGenPasswordUser.ForeColor = $textBoxForeColor
+$textBoxGenPasswordUser.Add_KeyDown({
+    param($sender, $e)
+    if ($e.Control -and ($e.KeyCode -eq [System.Windows.Forms.Keys]::A)) { $sender.SelectAll() }
+})
+$form.Controls.Add($textBoxGenPasswordUser)
+
+$labelGeneratedPassword = New-Object System.Windows.Forms.Label
+$labelGeneratedPassword.Location = New-Object System.Drawing.Point(20, 15)
+$labelGeneratedPassword.AutoSize = $true
+$labelGeneratedPassword.Text = "Password:"
+$labelGeneratedPassword.ForeColor = $foreColor
+$labelGeneratedPassword.BackColor = $backColor
+$form.Controls.Add($labelGeneratedPassword)
+
+$textBoxGeneratedPassword = New-Object System.Windows.Forms.TextBox
+$textBoxGeneratedPassword.ReadOnly = $true
+$textBoxGeneratedPassword.Size = New-Object System.Drawing.Size($textBoxGenPasswordUser.Width, 25)
+$textBoxGeneratedPassword.Cursor = [System.Windows.Forms.Cursors]::IBeam
+$textBoxGeneratedPassword.BackColor = [System.Drawing.Color]::Black
+$textBoxGeneratedPassword.ForeColor = $textBoxForeColor
+$form.Controls.Add($textBoxGeneratedPassword)
+
+$textBoxStatusLog = New-Object System.Windows.Forms.TextBox
+$textBoxStatusLog.Location = New-Object System.Drawing.Point(20, 400)
+$textBoxStatusLog.Size = New-Object System.Drawing.Size(920, 150)
+$textBoxStatusLog.Multiline = $true
+$textBoxStatusLog.ReadOnly = $true
+$textBoxStatusLog.ScrollBars = "Vertical"
+$textBoxStatusLog.BackColor = [System.Drawing.Color]::Black
+$textBoxStatusLog.ForeColor = [System.Drawing.Color]::Lime
+$textBoxStatusLog.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor [System.Windows.Forms.AnchorStyles]::Left -bor [System.Windows.Forms.AnchorStyles]::Right -bor [System.Windows.Forms.AnchorStyles]::Top
+$form.Controls.Add($textBoxStatusLog)
+
+function SetButtonStateColors($Button, $EnabledState) {
+    if ($EnabledState) {
+        $Button.BackColor = $controlBackColor
+        $Button.ForeColor = $foreColor
+    } else {
+        $Button.BackColor = $disabledButtonBackColor
+        $Button.ForeColor = $disabledButtonForeColor
+    }
+}
+
+function ResizePasswordColumn {
+    $dataGrid.AutoResizeColumn(
+        $dataGrid.Columns['Password'].Index,
+        [System.Windows.Forms.DataGridViewAutoSizeColumnMode]::AllCells
+    )
+    $currentWidth = $dataGrid.Columns['Password'].Width
+    $minWidth = 100
+    $maxWidth = 300
+    if ($currentWidth -lt $minWidth) {
+        $dataGrid.Columns['Password'].Width = $minWidth
+    } elseif ($currentWidth -gt $maxWidth) {
+        $dataGrid.Columns['Password'].Width = $maxWidth
+    }
+    $dataGrid.Columns['Email'].AutoSizeMode = [System.Windows.Forms.DataGridViewAutoSizeColumnMode]::Fill
+     foreach ($col in $dataGrid.Columns) { if ($col.Name -ne "Password" -and $col.Name -ne "Email") { $col.AutoSizeMode = [System.Windows.Forms.DataGridViewAutoSizeColumnMode]::Fill } }
+}
+
+function ResizeTextBoxToContent {
+    param(
+        [System.Windows.Forms.TextBox]$TextBox,
+        [int]$RightBoundaryX,
+        [int]$MinimumWidth = 50,
+        [int]$MaximumWidth = 300
+    )
+    if ([string]::IsNullOrEmpty($TextBox.Text)) {
+        $TextBox.Width = $MinimumWidth
+    } else {
+        $measurementBounds = New-Object System.Drawing.Size($MaximumWidth, [int]::MaxValue)
+        $textSize = [System.Windows.Forms.TextRenderer]::MeasureText($TextBox.Text, $TextBox.Font, $measurementBounds, [System.Windows.Forms.TextFormatFlags]::NoPadding)
+        $requiredWidth = $textSize.Width + 15
+
+        $availableWidth = $RightBoundaryX - $TextBox.Left
+        
+        $targetWidth = [System.Math]::Min($requiredWidth, $availableWidth)
+        $targetWidth = [System.Math]::Min($targetWidth, $MaximumWidth)
+        $TextBox.Width = [System.Math]::Max($targetWidth, $MinimumWidth)
+    }
+}
+
+function PositionControls {
+    param(
+        [System.Windows.Forms.Form]$ParentForm
+    )
+    $buttonHeight = $buttonProcess.Height
+    $passwordRowHeight = $labelGenPasswordUser.Height
+    
+    $minSpaceForButtonRow1 = $buttonHeight + 10
+    $minSpaceForButtonRow2 = $buttonHeight + 10
+    $minSpaceForPasswordRow = $passwordRowHeight + 10
+    $minSpaceForStatusLog = 120
+
+    $fixedControlsHeightAboveGrid = $labelUsers.Height + $textBoxUsers.Height + 10 + $progressBar.Height + 10
+    $minSpaceBelowGrid = $minSpaceForButtonRow1 + $minSpaceForButtonRow2 + $minSpaceForPasswordRow + $minSpaceForStatusLog + 40
+    $availableHeightForGrid = $ParentForm.ClientSize.Height - $fixedControlsHeightAboveGrid - $minSpaceBelowGrid
+    $minDataGridHeight = 100
+    $dataGridHeight = [System.Math]::Max($minDataGridHeight, $availableHeightForGrid)
+    $dataGrid.Height = $dataGridHeight
+
+    $buttonRow1Y = $dataGrid.Bottom + 10
+    $buttonProcessX = 20
+    $buttonProcess.Location = New-Object System.Drawing.Point($buttonProcessX, $buttonRow1Y)
+    SetButtonStateColors $buttonProcess $buttonProcess.Enabled
+
+    $buttonSaveX = [int]$buttonProcess.Bounds.Right + 10
+    $buttonSave.Location = New-Object System.Drawing.Point($buttonSaveX, $buttonRow1Y)
+    SetButtonStateColors $buttonSave $buttonSave.Enabled
+
+    $buttonEnableResetX = [int]$buttonSave.Bounds.Right + 10
+    $buttonEnableReset.Location = New-Object System.Drawing.Point($buttonEnableResetX, $buttonRow1Y)
+    SetButtonStateColors $buttonEnableReset $buttonEnableReset.Enabled
+    
+    $firstRowTotalWidth = $buttonEnableReset.Bounds.Right - $buttonProcess.Bounds.Left
+
+    $buttonRow2Y = [int]$buttonProcess.Bounds.Bottom + 10
+    $buttonGeneratePasswordX = 20
+    $buttonGeneratePassword.Location = New-Object System.Drawing.Point($buttonGeneratePasswordX, $buttonRow2Y)
+    $buttonGeneratePassword.Size = New-Object System.Drawing.Size($firstRowTotalWidth, $buttonHeight)
+    SetButtonStateColors $buttonGeneratePassword $buttonGeneratePassword.Enabled
+    $buttonGeneratePassword.PerformLayout()
+
+    $passwordControlsY = [int]$buttonGeneratePassword.Bounds.Bottom + 10
+    
+    $labelGenPasswordUserX = 20
+    $labelGenPasswordUser.Location = New-Object System.Drawing.Point($labelGenPasswordUserX, $passwordControlsY)
+    $labelGenPasswordUserHeight = [int]$labelGenPasswordUser.Bounds.Height
+    $textBoxGenPasswordUserHeight = [int]$textBoxGenPasswordUser.Height
+    $verticalOffsetUser = ([double]$labelGenPasswordUserHeight - [double]$textBoxGenPasswordUserHeight) / 2
+    $textBoxGenPasswordUserY = [int]($passwordControlsY + $verticalOffsetUser)
+    $textBoxGenPasswordUser.Location = New-Object System.Drawing.Point(([int]$labelGenPasswordUser.Bounds.Right + 5), $textBoxGenPasswordUserY)
+
+    $estimatedPasswordLabelWidth = [System.Windows.Forms.TextRenderer]::MeasureText("Password:", $labelGeneratedPassword.Font).Width
+    $estimatedPasswordControlsWidth = $estimatedPasswordLabelWidth + 5 + $textBoxGeneratedPassword.Width + 20
+    $usernameTextboxRightBoundary = $ParentForm.ClientSize.Width - 20 - $estimatedPasswordControlsWidth
+    ResizeTextBoxToContent -TextBox $textBoxGenPasswordUser -RightBoundaryX $usernameTextboxRightBoundary -MinimumWidth 120 -MaximumWidth 250
+
+    $labelGeneratedPasswordX = [int]$textBoxGenPasswordUser.Bounds.Right + 20
+    $labelGeneratedPasswordY = $passwordControlsY
+    $labelGeneratedPassword.Location = New-Object System.Drawing.Point($labelGeneratedPasswordX, $labelGeneratedPasswordY)
+    $labelGeneratedPasswordHeight = [int]$labelGeneratedPassword.Bounds.Height
+    $textBoxGeneratedPasswordHeight = [int]$textBoxGeneratedPassword.Height
+    $verticalOffsetPassword = ([double]$labelGeneratedPasswordHeight - [double]$textBoxGeneratedPasswordHeight) / 2
+    $textBoxGeneratedPasswordY = [int]($passwordControlsY + $verticalOffsetPassword)
+    $textBoxGeneratedPassword.Location = New-Object System.Drawing.Point(([int]$labelGeneratedPassword.Bounds.Right + 5), $textBoxGeneratedPasswordY)
+    ResizeTextBoxToContent -TextBox $textBoxGeneratedPassword -RightBoundaryX ($ParentForm.ClientSize.Width - 20) -MinimumWidth $textBoxGenPasswordUser.Width -MaximumWidth ($ParentForm.ClientSize.Width - $textBoxGeneratedPassword.Left - 20)
+
+    $textBoxStatusLogY = [int]$labelGenPasswordUser.Bounds.Bottom + 10
+    $textBoxStatusLog.Location = New-Object System.Drawing.Point(20, $textBoxStatusLogY)
+    $statusLogHeight = $ParentForm.ClientSize.Height - $textBoxStatusLog.Top - 20
+    if ($statusLogHeight -lt $minSpaceForStatusLog) { $statusLogHeight = $minSpaceForStatusLog }
+    $textBoxStatusLog.Height = $statusLogHeight
+
+    ResizePasswordColumn
+}
+
+$form.add_Resize({
+    $textBoxUsers.Width = $form.ClientSize.Width - 40
+    $progressBar.Width = $form.ClientSize.Width - 40
+    $dataGrid.Width = $form.ClientSize.Width - 40
+    $textBoxStatusLog.Width = $form.ClientSize.Width - 40
+    PositionControls -ParentForm $form
+})
+
+$textBoxStatusLog.Add_TextChanged({
+    $this.SelectionStart = $this.Text.Length
+    $this.ScrollToCaret()
+})
+
+$textBoxGenPasswordUser.Add_TextChanged({
+     $estimatedPasswordLabelWidth = [System.Windows.Forms.TextRenderer]::MeasureText("Password:", $labelGeneratedPassword.Font).Width
+     $estimatedPasswordControlsWidth = $estimatedPasswordLabelWidth + 5 + $textBoxGeneratedPassword.Width + 20 
+     $usernameTextboxRightBoundary = $form.ClientSize.Width - 20 - $estimatedPasswordControlsWidth
+    ResizeTextBoxToContent -TextBox $textBoxGenPasswordUser -RightBoundaryX $usernameTextboxRightBoundary -MinimumWidth 120 -MaximumWidth 250
+    PositionControls -ParentForm $form
+})
+
+$buttonProcess.Add_Click({
+    $dataGrid.Rows.Clear()
+    $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Starting AD query.`n")
+    $buttonSave.Enabled = $false; SetButtonStateColors $buttonSave $false
+    $buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false
+    
+    $lines = $textBoxUsers.Text -split '\r?\n' | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+    $totalLines = $lines.Count
+    $progressBar.Maximum = $totalLines
+    $progressBar.Value = 0
+    $form.PerformLayout()
+
+    foreach ($line in $lines) {
+        $username = $line.Trim()
+        if ([string]::IsNullOrWhiteSpace($username)) {
+            $progressBar.Value++
+            continue
+        }
+        
+        try {
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Querying user '$username'.`n")
+            $user = Get-ADUser -Identity $username -Properties SamAccountName, LastLogonDate, Description, PhysicalDeliveryOfficeName, Enabled, mail, DistinguishedName -ErrorAction Stop
+            
+            $lastLogonDateProperty = $user.LastLogonDate
+            $status = "Never"
+            $lastLogonTimestamp = $null
+
+            if ($lastLogonDateProperty) {
+                if ($lastLogonDateProperty -is [datetime]) {
+                    $lastLogonTimestamp = $lastLogonDateProperty
+                }
+                elseif ($lastLogonDateProperty -is [string]) {
+                    try {
+                        $lastLogonTimestamp = [datetime]::Parse($lastLogonDateProperty, [System.Globalization.CultureInfo]::InvariantCulture)
+                    } catch {
+                         try {
+                            $lastLogonTimestamp = [datetime]::Parse($lastLogonDateProperty)
+                         } catch {
+                            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Warning: Could not parse LastLogonDate string '$lastLogonDateProperty' for user '$($user.SamAccountName)'. Error: $($_.Exception.Message)`n")
+                         }
+                    }
+                }
+                elseif ($lastLogonDateProperty -is [long] -or $lastLogonDateProperty -is [int]) {
+                    try {
+                        $lastLogonTimestamp = [datetime]::FromFileTime($lastLogonDateProperty)
+                    } catch {
+                        $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Warning: Could not convert LastLogonDate FileTime '$lastLogonDateProperty' for user '$($user.SamAccountName)'. Error: $($_.Exception.Message)`n")
+                    }
+                }
+
+                if ($lastLogonTimestamp -is [datetime]) {
+                     if (((Get-Date) - $lastLogonTimestamp).TotalDays -gt 90) { $status = ">90 DAYS" } else { $status = "Recent" }
+                } else {
+                    $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Warning: LastLogonDate for user '$($user.SamAccountName)' could not be determined or parsed correctly.`n")
+                    $status = "Unknown/Error"
+                }
+            }
+            
+            $formattedLastLogonDate = if ($lastLogonTimestamp -is [datetime]) { $lastLogonTimestamp.ToString("yyyy-MM-dd") } else { "" }
+            
+            $passwordStatus = if ($status -eq "Recent" -and $user.Enabled) { "Already Set" } else { "To Be Reset" }
+            
+            $rowIndex = $dataGrid.Rows.Add($user.SamAccountName, $passwordStatus, $user.mail, $user.Description, $user.PhysicalDeliveryOfficeName, $user.Enabled, $status, $formattedLastLogonDate)
+            $dataGrid.Rows[$rowIndex].Tag = $user.SamAccountName
+
+            if (-not $user.Enabled -or $status -eq "Never" -or $status -eq ">90 DAYS" -or $status -eq "Unknown/Error") {
+                $dataGrid.Rows[$rowIndex].DefaultCellStyle.BackColor = $dataGridFlaggedBackColor
+                $dataGrid.Rows[$rowIndex].DefaultCellStyle.ForeColor = $dataGridStatusForeColor
+                $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - User '$($user.SamAccountName)' flagged for reset/enable.`n")
+            } else {
+                $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - User '$($user.SamAccountName)' found (Active).`n")
+            }
+        } catch {
+            $errorMessage = $_.Exception.Message
+            $rowIndex = $dataGrid.Rows.Add($username, "ERROR", "", "", "", "", "Error", $errorMessage)
+            $dataGrid.Rows[$rowIndex].DefaultCellStyle.BackColor = $dataGridErrorBackColor
+            $dataGrid.Rows[$rowIndex].DefaultCellStyle.ForeColor = $dataGridStatusForeColor
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Error querying user '$username': $($errorMessage).`n")
+        }
+        $progressBar.Value++
+        $form.Refresh()
+    }
+    $form.PerformLayout()
+    ResizePasswordColumn
+
+    if ($dataGrid.Rows.Count -gt 0) {
+        $buttonSave.Enabled = $true; SetButtonStateColors $buttonSave $true
+        $usersToAction = $dataGrid.Rows | Where-Object {
+            ($_.DefaultCellStyle.BackColor -eq $dataGridFlaggedBackColor) -and 
+            ($_.Cells['LogStat'].Value -ne "Process Error") -and 
+            ($_.Cells['LogStat'].Value -ne "Error")
+        }
+        if ($usersToAction -and $usersToAction.Count -gt 0) {
+            $buttonEnableReset.Enabled = $true; SetButtonStateColors $buttonEnableReset $true
+        } else {
+            $buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false
+        }
+    } else {
+         $buttonSave.Enabled = $false; SetButtonStateColors $buttonSave $false
+         $buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false
+    }
+    $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - AD query complete. Retrieved $($dataGrid.Rows.Count) results.`n")
+})
+
+$buttonEnableReset.Add_Click({
+    $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Starting enable/reset process.`n")
+    $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+    $buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false
+    $buttonProcess.Enabled = $false; SetButtonStateColors $buttonProcess $false
+    $buttonSave.Enabled = $false; SetButtonStateColors $buttonSave $false
+    $buttonGeneratePassword.Enabled = $false; SetButtonStateColors $buttonGeneratePassword $false
+
+    $progressBar.Value = 0
+    $rowsToProcessQuery = $dataGrid.Rows | Where-Object {
+        ($_.DefaultCellStyle.BackColor -eq $dataGridFlaggedBackColor) -and 
+        ($_.Cells['LogStat'].Value -ne "Error") -and 
+        ($_.Cells['LogStat'].Value -ne "Process Error")
+    }
+    $progressBar.Maximum = $rowsToProcessQuery.Count
+    
+    $processedCount = 0
+    $usedPasswords = @{}
+    $passwordResetDone = @{}
+
+    $targetOUObject = $null
+    try {
+        $targetOUObject = Get-ADOrganizationalUnit -Identity $targetOU -ErrorAction Stop
+    } catch {
+        $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - CRITICAL ERROR: Target OU '$targetOU' not found. Aborting process. Error: $($_.Exception.Message)`n")
+        $form.Cursor = [System.Windows.Forms.Cursors]::Default
+        $buttonProcess.Enabled = $true; SetButtonStateColors $buttonProcess $true
+        if ($dataGrid.Rows.Count -gt 0) { $buttonSave.Enabled = $true; SetButtonStateColors $buttonSave $true }
+        $usersToAction = $dataGrid.Rows | Where-Object {($_.DefaultCellStyle.BackColor -eq $dataGridFlaggedBackColor) -and ($_.Cells['LogStat'].Value -ne "Process Error") -and ($_.Cells['LogStat'].Value -ne "Error")}
+        if ($usersToAction -and $usersToAction.Count -gt 0) { $buttonEnableReset.Enabled = $true; SetButtonStateColors $buttonEnableReset $true }
+
+        $buttonGeneratePassword.Enabled = $true; SetButtonStateColors $buttonGeneratePassword $true
+        return
+    }
+    $targetOUDN = $targetOUObject.DistinguishedName
+    $targetOUFriendlyName = $targetOUObject.Name
+
+    foreach ($row in $dataGrid.Rows) {
+        if ($row.DefaultCellStyle.BackColor -ne $dataGridFlaggedBackColor `
+            -or $row.Cells['LogStat'].Value -eq "Error" `
+            -or $row.Cells['LogStat'].Value -eq "Process Error") {
+            if ($row.Tag -and $passwordResetDone.ContainsKey($row.Tag) -and $row.Cells['Password'].Value -ne "ERROR") {
+                 $row.Cells['Password'].Value = "SET PREVIOUSLY"
+                 $row.DefaultCellStyle.BackColor = $dataGridSetPreviouslyBackColor
+                 $row.DefaultCellStyle.ForeColor = $dataGridStatusForeColor
+            }
+            continue
+        }
+
+        $usernameToProcess = $row.Tag
+        if (-not $usernameToProcess) {
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Skipping row with no username tag.`n")
+            continue
+        }
+
+        if ($passwordResetDone.ContainsKey($usernameToProcess)) {
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - User '$usernameToProcess' already processed in this batch. Updating row.`n")
+            $row.Cells['Password'].Value = "SET PREVIOUSLY"
+            $row.DefaultCellStyle.BackColor = $dataGridSetPreviouslyBackColor
+            $row.DefaultCellStyle.ForeColor = $dataGridStatusForeColor
+            $row.Cells['LogStat'].Value = "Processed (Duplicate)"
+            continue
+        }
+        
+        $progressBar.Value++
+        $form.Refresh()
+
+        try {
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Processing '$usernameToProcess': Enable, Move, and Reset Password.`n")
+            $currentUser = Get-ADUser -Identity $usernameToProcess -Properties Enabled, DistinguishedName, SamAccountName -ErrorAction Stop
+
+            if (-not $currentUser.Enabled) {
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Enabling user '$usernameToProcess'.`n")
+                 Set-ADUser -Identity $currentUser -Enabled $true -ErrorAction Stop
+                 $row.Cells['Enabled'].Value = $true
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Re-fetching user '$usernameToProcess' after enabling.`n")
+                 $currentUser = Get-ADUser -Identity $currentUser.SamAccountName -Properties Enabled, DistinguishedName, SamAccountName -ErrorAction Stop
+            } else {
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - User '$usernameToProcess' is already enabled.`n")
+            }
+
+            $currentUserParentPath = ($currentUser.DistinguishedName -split ',', 2)[1]
+
+            if ($currentUserParentPath -ne $targetOUDN) {
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Moving user '$usernameToProcess' from '$currentUserParentPath' to '$targetOUDN'.`n")
+                 Move-ADObject -Identity $currentUser -TargetPath $targetOUDN -ErrorAction Stop
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Re-fetching user '$usernameToProcess' after moving.`n")
+                 $currentUser = Get-ADUser -Identity $currentUser.SamAccountName -Properties Enabled, DistinguishedName, SamAccountName -ErrorAction Stop
+            } else {
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - User '$usernameToProcess' is already in OU: '$targetOUFriendlyName'. No move action performed.`n")
+            }
+            
+            $newPassword = Generate-UniquePassword $usedPasswords.Keys $adjectiveBank $nounBank $verbBank
+            while ($usedPasswords.ContainsKey($newPassword)) {
+                $newPassword = Generate-UniquePassword $usedPasswords.Keys $adjectiveBank $nounBank $verbBank
+            }
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Setting new password for '$usernameToProcess' and forcing change at next logon.`n")
+            Set-ADAccountPassword -Identity $currentUser -NewPassword (ConvertTo-SecureString $newPassword -AsPlainText -Force) -Reset -ErrorAction Stop
+            Set-ADUser -Identity $currentUser -ChangePasswordAtLogon $true -ErrorAction Stop
+            
+            $row.Cells['Password'].Value = $newPassword
+            $usedPasswords[$newPassword] = $true
+            $passwordResetDone[$usernameToProcess] = $true
+            
+            $row.DefaultCellStyle.BackColor = $dataGridProcessedOKBackColor
+            $row.DefaultCellStyle.ForeColor = $dataGridStatusForeColor
+            $row.Cells['LogStat'].Value = "Processed OK"
+            $processedCount++
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Successfully processed '$usernameToProcess'.`n")
+
+        } catch {
+             $errorMessage = $_.Exception.Message
+             $row.Cells['Password'].Value = "ERROR"
+             $row.DefaultCellStyle.BackColor = $dataGridErrorBackColor
+             $row.DefaultCellStyle.ForeColor = $dataGridStatusForeColor
+             $row.Cells['LogStat'].Value = "Process Error"
+             $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Error processing '$usernameToProcess': $($errorMessage).`n")
+        }
+    }
+
+    ResizePasswordColumn
+    $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Enable/reset process complete. $processedCount users successfully processed.`n")
+    $form.Cursor = [System.Windows.Forms.Cursors]::Default
+
+    $buttonProcess.Enabled = $true; SetButtonStateColors $buttonProcess $true
+    if ($dataGrid.Rows.Count -gt 0) { $buttonSave.Enabled = $true; SetButtonStateColors $buttonSave $true }
+    
+    $usersStillToAction = $dataGrid.Rows | Where-Object {
+        ($_.DefaultCellStyle.BackColor -eq $dataGridFlaggedBackColor) -and 
+        ($_.Cells['LogStat'].Value -ne "Process Error") -and 
+        ($_.Cells['LogStat'].Value -ne "Error") -and
+        (-not $passwordResetDone.ContainsKey($_.Tag))
+    }
+    if ($usersStillToAction -and $usersStillToAction.Count -gt 0) {
+        $buttonEnableReset.Enabled = $true; SetButtonStateColors $buttonEnableReset $true
+    } else {
+        $buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false
+    }
+    $buttonGeneratePassword.Enabled = $true; SetButtonStateColors $buttonGeneratePassword $true
+})
+
+$buttonSave.Add_Click({
+    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+    $saveFileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*"
+    $saveFileDialog.Title = "Save Results"
+    $saveFileDialog.FileName = "ADResults-$(Get-Date -UFormat %Y-%m-%d).csv"
+    $saveFileDialog.InitialDirectory = [System.Environment]::GetFolderPath('MyDocuments')
+
+    if ($saveFileDialog.ShowDialog() -eq [System.Windows.Forms.DialogResult]::OK) {
+        $csvPath = $saveFileDialog.FileName
+        $outputList = @()
+        try {
+            $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Saving results to '$csvPath'.`n")
+            $form.Cursor = [System.Windows.Forms.Cursors]::WaitCursor
+            $buttonSave.Enabled = $false; SetButtonStateColors $buttonSave $false
+            $buttonProcess.Enabled = $false; SetButtonStateColors $buttonProcess $false
+            $buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false
+            $buttonGeneratePassword.Enabled = $false; SetButtonStateColors $buttonGeneratePassword $false
+
+            foreach ($row in $dataGrid.Rows) {
+                 if ([string]::IsNullOrWhiteSpace($row.Cells['Username'].Value) -and -not $row.Tag) {
+                     continue
+                 }
+                $rowData = [ordered]@{}
+                foreach ($col in $dataGrid.Columns) {
+                    $cellValue = if ($row.Cells[$col.Name].Value -ne $null) { $row.Cells[$col.Name].Value } else { "" }
+                    $rowData[$col.Name] = [string]$cellValue
+                }
+                $outputList += (New-Object PSObject -Property $rowData)
+            }
+
+            if ($outputList.Count -gt 0) {
+                 $outputList | Export-Csv -Path $csvPath -NoTypeInformation -UseCulture:$false -Encoding UTF8
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Data successfully saved to '$csvPath'. Exported $($outputList.Count) data rows.`n")
+            } else {
+                 $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - No data rows to export.`n")
+            }
+        } catch {
+             $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Error saving data: $($_.Exception.Message).`n")
+        } finally {
+            $form.Cursor = [System.Windows.Forms.Cursors]::Default
+            $buttonProcess.Enabled = $true; SetButtonStateColors $buttonProcess $true
+            if ($dataGrid.Rows.Count -gt 0) { $buttonSave.Enabled = $true; SetButtonStateColors $buttonSave $true }
+            $usersToAction = $dataGrid.Rows | Where-Object {($_.DefaultCellStyle.BackColor -eq $dataGridFlaggedBackColor) -and ($_.Cells['LogStat'].Value -ne "Process Error") -and ($_.Cells['LogStat'].Value -ne "Error")}
+            if ($usersToAction -and $usersToAction.Count -gt 0) { $buttonEnableReset.Enabled = $true; SetButtonStateColors $buttonEnableReset $true } else {$buttonEnableReset.Enabled = $false; SetButtonStateColors $buttonEnableReset $false}
+
+            $buttonGeneratePassword.Enabled = $true; SetButtonStateColors $buttonGeneratePassword $true
+        }
+    } else {
+        $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Save operation cancelled by user.`n")
+    }
+})
+
+$buttonGeneratePassword.Add_Click({
+    try {
+        if (-not $adjectiveBank -or -not $nounBank -or -not $verbBank `
+            -or $adjectiveBank.Count -eq 0 -or $nounBank.Count -eq 0 -or $verbBank.Count -eq 0) {
+             $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Error: Password generation banks (adjectiveBank, nounBank, verbBank) are not defined or empty.`n")
+            Return
+        }
+
+        $generatedPwd = Generate-UniquePassword @() $adjectiveBank $nounBank $verbBank
+        $textBoxGeneratedPassword.Text = $generatedPwd
+        $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Generated new random password.`n")
+
+        $usernameForCopy = $textBoxGenPasswordUser.Text
+        $passwordToCopy = ""
+        if (-not [string]::IsNullOrWhiteSpace($usernameForCopy)) {
+            $passwordToCopy = "Username: $($usernameForCopy)`n"
+        }
+        $passwordToCopy += "Password: $($generatedPwd)"
+        
+        [System.Windows.Forms.Clipboard]::SetText($passwordToCopy)
+        $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Details copied to clipboard.`n")
+
+        $passwordTextboxRightBoundary = $form.ClientSize.Width - 20 
+        ResizeTextBoxToContent -TextBox $textBoxGeneratedPassword `
+                               -RightBoundaryX $passwordTextboxRightBoundary `
+                               -MinimumWidth $textBoxGenPasswordUser.Width `
+                               -MaximumWidth ($form.ClientSize.Width - $textBoxGeneratedPassword.Left - 20)
+		
+    } catch {
+        $textBoxStatusLog.AppendText("$(Get-Date -Format 'HH:mm:ss') - Error generating password: $($_.Exception.Message).`n")
+    }
+})
+
+$form.Add_Shown({ PositionControls -ParentForm $form })
+
+$form.ShowDialog() | Out-Null
